@@ -8,8 +8,20 @@ import android.graphics.drawable.Drawable;
 
 // creating data model that can be used for array list to transmit between adapter and activities
 public class CanadianFact {
-    String title, Description;
+    String title;
+    String Description;
+    String imageLink;
     Drawable image;
+
+    public String getImageLink() {
+        return imageLink;
+    }
+
+    public void setImageLink(String imageLink) {
+        this.imageLink = imageLink;
+    }
+
+
 
     public String getTitle() {
         return title;

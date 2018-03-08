@@ -49,7 +49,9 @@ public class ListAdapter extends BaseAdapter {
             view.setTag(viewHolder);
         } else viewHolder=(ViewHolder) view.getTag();
         viewHolder.title.setText(factList.get(position).getTitle());
-        viewHolder.description.setText(factList.get(position).getDescription());
+        if (factList.get(position).getDescription().equalsIgnoreCase("null")){
+            viewHolder.description.setText("");
+        } else  viewHolder.description.setText(factList.get(position).getDescription());
         viewHolder.imageView.setImageDrawable(factList.get(position).getImage());
 
         return view;
