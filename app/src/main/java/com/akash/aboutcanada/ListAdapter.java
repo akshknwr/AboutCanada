@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,6 +26,7 @@ public class ListAdapter extends BaseAdapter {
     LayoutInflater layoutInflater;
     List<CanadianFact> factList;
     Context context;
+    int mLastPosition;
     int numberOfItems = 4;
 
     public ListAdapter(List<CanadianFact> factList, Context context) {
@@ -67,6 +69,17 @@ public class ListAdapter extends BaseAdapter {
         Glide.with(context).load(factList.get(position).getImageLink()).into(viewHolder.imageView);
 
 
+        float initialTranslation = (mLastPosition <= position ? 500f : -500f);
+
+        view.setTranslationY(initialTranslation);
+        view.animate()
+                .setInterpolator(new DecelerateInterpolator(1.0f))
+                .translationY(0f)
+                .setDuration(300l)
+                .setListener(null);
+
+        // Keep track of the last position we loaded
+        mLastPosition = position;
 
         return view;
 

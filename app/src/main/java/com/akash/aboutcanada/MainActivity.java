@@ -4,6 +4,7 @@ package com.akash.aboutcanada;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -12,10 +13,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -33,11 +39,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     int previousFirstItem;
     int previousLastItem=0;
     //initial offset starting with 0 so later on can be updated
-    private  int offset=2;
+    private  int offset=1;
     LinearLayout pulllayout; //a layout to show pull guide to refresh
 private final static String json_url="https://dl.dropboxusercontent.com/s/2iodh4vg0eortkl/facts.json";
 String title="null";
-List<CanadianFact> canadianFactList;
+ArrayList<CanadianFact> canadianFactList;
 ArrayList<CanadianFact> subList;
 SwipeRefreshLayout swipeRefreshLayout;
 boolean isJsonLoaded;
@@ -84,12 +90,12 @@ public Appstart checkAppStart(int currentVersion, int lastVersion){
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        pulllayout=findViewById(R.id.pull_layout);
+        //pulllayout=findViewById(R.id.pull_layout);
         switch (checkAppStart()){
             case Normal:break;
-            case First_Time: pulllayout.setVisibility(View.VISIBLE);
+            case First_Time: showPullDownToast(); // pulllayout.setVisibility(View.VISIBLE);
             break;
-            case First_Version: pulllayout.setVisibility(View.VISIBLE);
+            case First_Version: showPullDownToast();// pulllayout.setVisibility(View.VISIBLE);
             break;
             default:break;
 
@@ -100,7 +106,13 @@ public Appstart checkAppStart(int currentVersion, int lastVersion){
         swipeRefreshLayout=findViewById(R.id.refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
 
+        if (savedInstanceState!=null){
+            canadianFactList=savedInstanceState.getParcelableArrayList("list");
+        } else canadianFactList=new ArrayList<>();
 
+        if (canadianFactList.size()>0){
+            isJsonLoaded=true;
+        }
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -114,34 +126,59 @@ public Appstart checkAppStart(int currentVersion, int lastVersion){
             }
         });
 
-        canadianFactList=new ArrayList<>();
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView absListView, int state) {
-                switch (state){
-                    case SCROLL_STATE_IDLE: pulllayout.setVisibility(View.GONE); //scrolling stopped
-                        Log.d("FLing","idle");
-                        break;
-                    case  SCROLL_STATE_TOUCH_SCROLL: pulllayout.setVisibility(View.VISIBLE);
-                        Log.d("FLing","scrolling");
-                    break;
-                    case SCROLL_STATE_FLING: Log.d("FLing","fling");
-                    break;
-                }
-            }
 
-            @Override
-            public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+        showPullDownToast();
 
-            }
-        });
 
 
     }
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("list", canadianFactList);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onResume(){
+    super.onResume();
+    }
+    @Override
+    protected void onStart(){
+        super.onStart();
+    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+    }
+    @Override
+    protected void onRestart(){
+        super.onRestart();
+    }
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig){
+        super.onConfigurationChanged(newConfig);
+        /* I have not assigned different layouts for landscape and portrait layout
+        but this is where I would define separate layouts for separate layouts.
+         */
+
+    }
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstance){
+        super.onRestoreInstanceState(savedInstance);
+        if (savedInstance!=null){
+            canadianFactList=savedInstance.getParcelableArrayList("list");
+        }
+    }
+
+    @Override
     public void onRefresh(){
         swipeRefreshLayout.setRefreshing(true);
-        pulllayout.setVisibility(View.VISIBLE);
+        //pulllayout.setVisibility(View.VISIBLE);
 
         if (isJsonLoaded){
 
@@ -176,7 +213,8 @@ public Appstart checkAppStart(int currentVersion, int lastVersion){
                     canadianFact.setTitle(row.getString("title"));
                     canadianFact.setDescription(row.getString("description"));
                     canadianFact.setImageLink(row.getString("imageHref"));
-                    canadianFact.setLoaded(false); //Because Image has not been downloaded yet so we can download later
+
+                   // canadianFact.setLoaded(0); //Because Image has not been downloaded yet so we can download later
                     if (canadianFact.getTitle().equalsIgnoreCase("null") &&
                             canadianFact.getDescription().equalsIgnoreCase("null") &&
                             canadianFact.getImageLink().equalsIgnoreCase("null")){
@@ -240,7 +278,7 @@ public Appstart checkAppStart(int currentVersion, int lastVersion){
             listView.post(new Runnable() {
                 @Override
                 public void run() {
-                    listView.smoothScrollToPosition(0);
+                   // listView.smoothScrollToPosition(0);
                 }
             });
 
@@ -255,11 +293,29 @@ public Appstart checkAppStart(int currentVersion, int lastVersion){
 
         swipeRefreshLayout.setRefreshing(false);
 
-        pulllayout.setVisibility(View.GONE);
+       // pulllayout.setVisibility(View.GONE);
 
 
 
 
+    }
+
+    private void showPullDownToast(){
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.pull_down_toast,
+                (ViewGroup) findViewById(R.id.toast_layout_root));
+
+        ImageView image = (ImageView) layout.findViewById(R.id.image_toast);
+        //image.setImageResource(R.drawable.android);
+        TextView text = (TextView) layout.findViewById(R.id.text_toast);
+        text.setText("Please pull down to refresh the contents");
+
+        Toast toast = new Toast(getApplicationContext());
+        toast.setGravity(Gravity.TOP, 0, 0);
+
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.setView(layout);
+        toast.show();
     }
 
 }
