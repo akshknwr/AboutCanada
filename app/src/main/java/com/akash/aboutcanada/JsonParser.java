@@ -23,6 +23,7 @@ public class JsonParser {
     static String jsonString="";
     public JSONObject getJsonObjectFromURL(String url){
         //make HTTP request
+
         HttpURLConnection connection=null;
         try {
             URL link=new URL(url);

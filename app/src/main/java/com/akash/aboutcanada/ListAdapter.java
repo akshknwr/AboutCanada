@@ -1,12 +1,16 @@
 package com.akash.aboutcanada;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -21,15 +25,17 @@ public class ListAdapter extends BaseAdapter {
     LayoutInflater layoutInflater;
     List<CanadianFact> factList;
     Context context;
-    public ListAdapter(List<CanadianFact> factList,Context context){
-        this.factList=factList;
-        this.context=context;
-        layoutInflater=LayoutInflater.from(context);
+    int numberOfItems = 4;
+
+    public ListAdapter(List<CanadianFact> factList, Context context) {
+        this.factList = factList;
+        this.context = context;
+        layoutInflater = LayoutInflater.from(context);
     }
 
     @Override
     public int getCount() {
-        return  factList.size();
+        return factList.size();
     }
 
     @Override
@@ -40,30 +46,56 @@ public class ListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
         ViewHolder viewHolder;
-        if (view==null){
-            view=layoutInflater.inflate(R.layout.list_layout,viewGroup,false);
-            viewHolder=new ViewHolder();
-            viewHolder.title=(TextView) view.findViewById(R.id.textview_title);
-            viewHolder.description=(TextView) view.findViewById(R.id.description);
-            viewHolder.imageView=(ImageView) view.findViewById(R.id.imageview);
+        if (view == null) {
+            view = layoutInflater.inflate(R.layout.list_layout, viewGroup, false);
+            viewHolder = new ViewHolder();
+            viewHolder.title = (TextView) view.findViewById(R.id.textview_title);
+            viewHolder.description = (TextView) view.findViewById(R.id.description);
+            viewHolder.imageView = (ImageView) view.findViewById(R.id.imageview);
             view.setTag(viewHolder);
-        } else viewHolder=(ViewHolder) view.getTag();
-        viewHolder.title.setText(factList.get(position).getTitle());
-        if (factList.get(position).getDescription().equalsIgnoreCase("null")){
+        } else viewHolder = (ViewHolder) view.getTag();
+        if (factList.get(position).getTitle().equalsIgnoreCase("null")){
+            viewHolder.title.setText("");
+        } else viewHolder.title.setText(factList.get(position).getTitle());
+        //Replacing text null to empty because text null doesn't look impressive on user interface
+        if (factList.get(position).getDescription().equalsIgnoreCase("null")) {
             viewHolder.description.setText("");
-        } else  viewHolder.description.setText(factList.get(position).getDescription());
-        viewHolder.imageView.setImageDrawable(factList.get(position).getImage());
+        } else viewHolder.description.setText(factList.get(position).getDescription());
+
+
+// using Glide library loads images from URL without causing OUT Of Memory error
+        Glide.with(context).load(factList.get(position).getImageLink()).into(viewHolder.imageView);
+
+
 
         return view;
 
     }
+
     @Override
-    public long getItemId(int position){
+    public long getItemId(int position) {
         return position;
     }
-//defining a view holder class to hold view for each row
-    private class ViewHolder{
+
+    //defining a view holder class to hold view for each row
+    private class ViewHolder {
         TextView title, description;
         ImageView imageView;
+    }
+
+
+    public void addItems(List<CanadianFact> facts){
+       // factList.addAll(facts);
+        for (CanadianFact fact: facts){
+            factList.add(0,fact);
+        }
+
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        Log.d("newData"," "+factList.size());
     }
 }

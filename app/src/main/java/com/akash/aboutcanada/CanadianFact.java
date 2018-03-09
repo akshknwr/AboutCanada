@@ -1,6 +1,8 @@
 package com.akash.aboutcanada;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.widget.ImageView;
 
 /**
  * Created by akash on 8/03/18.
@@ -11,7 +13,27 @@ public class CanadianFact {
     String title;
     String Description;
     String imageLink;
-    Drawable image;
+    boolean isLoaded;
+
+
+
+    ImageView imageView;
+
+    public boolean isLoaded() {
+        return isLoaded;
+    }
+
+    public void setLoaded(boolean loaded) {
+        isLoaded = loaded;
+    }
+
+    public ImageView getImageView() {
+        return imageView;
+    }
+
+    public void setImageView(ImageView imageView) {
+        this.imageView = imageView;
+    }
 
     public String getImageLink() {
         return imageLink;
@@ -39,11 +61,5 @@ public class CanadianFact {
         Description = description;
     }
 
-    public Drawable getImage() {
-        return image;
-    }
 
-    public void setImage(Drawable image) {
-        this.image = image;
-    }
 }
